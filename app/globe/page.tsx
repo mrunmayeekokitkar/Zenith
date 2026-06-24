@@ -3,6 +3,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type * as CesiumNS from "cesium";
+import { setupISSOrbit, setupConstellations } from "./_components/SpaceVisualizer";
 
 interface GeographicCoordinate {
   latitude: number;
@@ -79,6 +80,11 @@ export default function GlobePage() {
   const [rotationSpeed, setRotationSpeed] = useState(0.04); // radians per second (~2.3 deg/sec)
   const [terrainEnabled, setTerrainEnabled] = useState(true);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [showISS, setShowISS] = useState(false);
+  const [showConstellations, setShowConstellations] = useState(false);
+
+  const issDataSourceRef = useRef<CesiumNS.CustomDataSource | null>(null);
+  const constellationsDataSourceRef = useRef<CesiumNS.CustomDataSource | null>(null);
 
   // Sync ref for callback handlers to prevent stale closure issues
   const selectedRef = useRef<GeographicCoordinate | null>(null);
@@ -269,6 +275,14 @@ export default function GlobePage() {
 
       cesiumRef.current = Cesium;
       viewerRef.current = viewer;
+
+      // Initialize the advanced WOW layers (hidden by default)
+      issDataSourceRef.current = setupISSOrbit(viewer, Cesium);
+      issDataSourceRef.current.show = showISS;
+
+      constellationsDataSourceRef.current = setupConstellations(viewer, Cesium);
+      constellationsDataSourceRef.current.show = showConstellations;
+
       setIsLoading(false);
       } catch (err) {
         console.error("Cesium init failed:", err);
@@ -289,11 +303,26 @@ export default function GlobePage() {
       }
       const viewer = viewerRef.current;
       if (viewer && !viewer.isDestroyed()) {
+        if (issDataSourceRef.current) viewer.dataSources.remove(issDataSourceRef.current, true);
+        if (constellationsDataSourceRef.current) viewer.dataSources.remove(constellationsDataSourceRef.current, true);
         viewer.destroy();
       }
       viewerRef.current = null;
     };
   }, []);
+
+  // ── Sync Visualizer Visibility ──
+  useEffect(() => {
+    if (issDataSourceRef.current) {
+      issDataSourceRef.current.show = showISS;
+    }
+  }, [showISS]);
+
+  useEffect(() => {
+    if (constellationsDataSourceRef.current) {
+      constellationsDataSourceRef.current.show = showConstellations;
+    }
+  }, [showConstellations]);
 
   // ── 2. Handle Auto-Rotation (Smooth, frame-rate independent)
   useEffect(() => {
@@ -623,6 +652,38 @@ export default function GlobePage() {
                   </label>
                 </div>
               )}
+
+              {/* Orbital Tracking Toggle */}
+              <div className="flex items-center justify-between border-t border-white/5 pt-3.5">
+                <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-slate-400 font-medium">
+                  Orbital Tracking (ISS)
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showISS}
+                    onChange={(e) => setShowISS(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500"></div>
+                </label>
+              </div>
+
+              {/* Constellations Toggle */}
+              <div className="flex items-center justify-between border-t border-white/5 pt-3.5">
+                <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-slate-400 font-medium">
+                  Constellation Overlay
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showConstellations}
+                    onChange={(e) => setShowConstellations(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-500"></div>
+                </label>
+              </div>
             </div>
 
             {/* Landmarks Drawer */}
