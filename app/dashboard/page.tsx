@@ -1,20 +1,31 @@
 "use client";
 
-export default function DashboardPlaceholder() {
+import { DashboardLayout } from "./_components/DashboardLayout";
+
+export default function DashboardPage() {
   return (
-    <main className="flex-1 page-with-nav flex flex-col items-center justify-center p-8">
-      <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-12 text-center backdrop-blur-xl">
-        <span className="mb-4 inline-block h-12 w-12 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.4)]">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-            <path d="M3 9h18M9 21V9"/>
-          </svg>
-        </span>
-        <h1 className="font-mono text-xl uppercase tracking-widest text-slate-200">Cosmic Dashboard</h1>
-        <p className="mt-2 font-sans text-slate-400 max-w-sm mx-auto">
-          This sector is under active construction. The telemetry uplink will be established shortly.
+    <main className="flex-1 page-with-nav relative min-h-screen bg-[#03040a] p-4 md:p-8 overflow-x-hidden">
+      
+      {/* Background ambient lighting */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-purple-900/10 blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-sky-900/10 blur-[120px]" />
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto mb-8">
+        <h1 className="font-mono text-2xl uppercase tracking-[0.2em] text-white flex items-center gap-3">
+          <span className="h-3 w-3 rounded-full bg-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.6)] animate-pulse" />
+          Data Intelligence Layer
+        </h1>
+        <p className="mt-2 font-sans text-sm text-slate-400">
+          Real-time telemetry uplink, orbital tracking, and atmospheric conditions monitoring.
         </p>
       </div>
+
+      <div className="relative z-10">
+        <DashboardLayout />
+      </div>
+
     </main>
   );
 }
