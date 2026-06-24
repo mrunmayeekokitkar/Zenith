@@ -1,27 +1,27 @@
 {
-  "name": "project-zenith",
-  "version": "0.1.0",
-  "private": true,
   "scripts": {
+    "predev": "node -e \"const{cpSync,existsSync,mkdirSync}=require('fs');const{join}=require('path');const src=join('node_modules/cesium/Build/Cesium');const dst=join('public/cesium');if(existsSync(src)){mkdirSync(dst,{recursive:true});['Workers','ThirdParty','Assets','Widgets'].forEach(f=>existsSync(join(src,f))&&cpSync(join(src,f),join(dst,f),{recursive:true}));console.log('Cesium assets copied to public/cesium');}else{console.warn('cesium not found in node_modules, skipping');}\"",
     "dev": "next dev",
+    "prebuild": "npm run predev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint"
   },
   "dependencies": {
+    "cesium": "^1.142.0",
     "framer-motion": "^12.41.0",
-    "next": "16.2.9",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "next": "^16.2.9",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.9",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "@tailwindcss/postcss": "^4.3.1",
+    "@types/node": "^26.0.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.5.1",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^4.3.1",
+    "typescript": "^6.0.3"
   }
 }

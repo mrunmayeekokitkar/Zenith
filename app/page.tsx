@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useScroll, useTransform, AnimatePresence, type Variants } from "framer-motion";
+import Link from "next/link";
 
 /* ------------------------------------------------------------------ */
 /*  Starfield                                                          */
@@ -269,32 +270,34 @@ function LocationSearch() {
 
 function ExploreButton() {
   return (
-    <motion.button
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.97 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className="group relative w-full overflow-hidden rounded-full bg-white px-8 py-4 text-sm font-semibold tracking-wide text-[#03040a] shadow-[0_0_30px_rgba(255,255,255,0.15)] sm:w-auto sm:text-base"
-    >
-      <span className="relative z-10 flex items-center justify-center gap-2">
-        Explore The Sky
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
-        >
-          <path
-            d="M7 17 17 7M9 7h8v8"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </span>
-      <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-sky-100/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-    </motion.button>
+    <Link href="/globe" className="block w-full sm:inline-block sm:w-auto">
+      <motion.button
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.97 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="group relative w-full overflow-hidden rounded-full bg-white px-8 py-4 text-sm font-semibold tracking-wide text-[#03040a] shadow-[0_0_30px_rgba(255,255,255,0.15)] sm:w-auto sm:text-base cursor-pointer"
+      >
+        <span className="relative z-10 flex items-center justify-center gap-2">
+          Explore The Sky
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+          >
+            <path
+              d="M7 17 17 7M9 7h8v8"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+        <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-sky-100/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+      </motion.button>
+    </Link>
   );
 }
 
