@@ -68,7 +68,7 @@ function getVisiblePlanets(date: Date): string[] {
 function calculateSkyData(date: Date, coords: GeoCoords): SkyData {
   // Use astronomy-engine for accurate sun position based on coordinates (not browser timezone)
   const observer = new Astronomy.Observer(coords.lat, coords.lng, 0);
-  const sunEquator = Astronomy.Equator('Sun', date, observer, true, true);
+  const sunEquator = Astronomy.Equator(Astronomy.Body.Sun, date, observer, true, true);
   const sunHorizon = Astronomy.Horizon(date, observer, sunEquator.ra, sunEquator.dec, 'normal');
   
   const sunAlt = sunHorizon.altitude;
@@ -87,8 +87,8 @@ function calculateSkyData(date: Date, coords: GeoCoords): SkyData {
   const lmst = ((gmst + coords.lng / 15) % 24 + 24) % 24;
 
   // Calculate day length using sunrise/sunset
-  const sunrise = Astronomy.SearchRiseSet('Sun', observer, -0.833, date, 1);
-  const sunset = Astronomy.SearchRiseSet('Sun', observer, -0.833, date, 2);
+  const sunrise = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -0.833, date, 1);
+  const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -0.833, date, 2);
   const dayLength = (sunset && sunrise) ? (sunset.time.date - sunrise.time.date) * 24 : 12;
 
   const isTwilight = sunAlt > -18 && sunAlt <= 0;
