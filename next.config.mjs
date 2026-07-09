@@ -1,6 +1,5 @@
 const nextConfig = {
   reactStrictMode: true,
-  turbopack: {}, // explicit empty config silences the webpack/Turbopack warning
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "apod.nasa.gov" },
