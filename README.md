@@ -1,8 +1,6 @@
 # Project Zenith: The Celestial Eye
 
-> **AstralWeb Innovate Round 2** — A real-time space-awareness platform that fuses live orbital telemetry, astronomical simulation, and immersive 3D visualisation into a single web experience.
-
-**Live Demo:** [mrunmayee-kokitkar-project-zenith.vercel.app](https://mrunmayee-kokitkar-project-zenith.vercel.app)
+**Live Demo:** [zenith-black-seven.vercel.app](zenith-black-seven.vercel.app)
 
 ---
 
@@ -127,12 +125,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | `/globe` | Interactive 3D Earth with orbit paths and stargazing presets |
 | `/sky` | Sky Time Machine — temporal sky simulation |
 | `/dashboard/challenge` | Coordinate Challenge Mode for judges |
-
----
-
-## License
-
-MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
