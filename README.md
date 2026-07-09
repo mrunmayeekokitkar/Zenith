@@ -115,10 +115,3 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | `/sky` | Sky Time Machine — temporal sky simulation |
 | `/dashboard/challenge` | Coordinate Challenge Mode for judges |
 
----
-
-## Author
-
-**Mrunmayee Kokitkar**
-
-*"Look up. The sky is not the limit — it's the beginning."*
