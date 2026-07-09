@@ -75,8 +75,8 @@ function calculateSkyData(date: Date, coords: GeoCoords): SkyData {
   const sunAz = sunHorizon.azimuth;
 
   // Calculate moon phase using astronomy-engine
-  const moon = Astronomy.SearchMoonPhase(0, date);
-  const moonPhase = moon.phase;
+  const moonInfo = Astronomy.MoonPhase(date);
+  const moonPhase = moonInfo.phase;
   const moonPhaseName = getMoonPhaseName(moonPhase);
 
   // Calculate sidereal time
