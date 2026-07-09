@@ -85,6 +85,13 @@ export function GlobeClient() {
 
   // Mobile controls drawer
   const [mobileControlsOpen, setMobileControlsOpen] = useState(false);
+  const [isMissionMode, setIsMissionMode] = useState(false);
+  const [isNightMode, setIsNightMode] = useState(true);
+  const [missionTasks, setMissionTasks] = useState([
+    { id: "iss", done: false },
+    { id: "radar", done: false },
+    { id: "everest", done: false },
+  ]);
 
   const issDataSourceRef = useRef<CesiumNS.CustomDataSource | null>(null);
   const constellationsDataSourceRef = useRef<CesiumNS.CustomDataSource | null>(null);
