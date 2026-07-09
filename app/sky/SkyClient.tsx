@@ -86,8 +86,10 @@ function calculateSkyData(date: Date, coords: GeoCoords): SkyData {
   gmst = ((gmst % 24) + 24) % 24;
   const lmst = ((gmst + coords.lng / 15) % 24 + 24) % 24;
 
-  // Calculate day length using astronomy-engine
-  const dayLength = Astronomy.DayLength(coords.lat, date);
+  // Calculate day length using sunrise/sunset
+  const sunrise = Astronomy.SearchRiseSet('Sun', observer, -0.833, date, 1);
+  const sunset = Astronomy.SearchRiseSet('Sun', observer, -0.833, date, 2);
+  const dayLength = (sunset && sunrise) ? (sunset.time.date - sunrise.time.date) * 24 : 12;
 
   const isTwilight = sunAlt > -18 && sunAlt <= 0;
 
