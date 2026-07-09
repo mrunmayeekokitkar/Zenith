@@ -5,7 +5,7 @@ import type * as CesiumNS from "cesium";
 import { setupISSOrbit, setupConstellations, setupRadarSatellites, setupMultiSatelliteOrbits, MULTI_SAT_CONFIGS, type SatelliteData } from "./_components/SpaceVisualizer";
 import { SpaceEventStream } from "../components/SpaceEventStream";
 import { PresetButton, STARGAZING_PRESETS } from "../components/PresetButton";
-import { setupConstellationOverlay, setupOrbitalTrail } from "../components/ConstellationOverlay";
+import { setupConstellationOverlay } from "../components/ConstellationOverlay";
 import { LocationSearch } from "../components/LocationSearch";
 import { hydrateLocationStore } from "../lib/api-client";
 import { fetchISSPassPrediction } from "../dashboard/_components/lib/real-api";
@@ -72,7 +72,6 @@ export function GlobeClient() {
   const [copySuccess, setCopySuccess] = useState(false);
   const [showISS, setShowISS] = useState(true);
   const [showConstellations, setShowConstellations] = useState(false);
-  const [showOrbitTrail, setShowOrbitTrail] = useState(false);
   const [showConstellationOverlay, setShowConstellationOverlay] = useState(false);
 
   // New features state
@@ -93,7 +92,6 @@ export function GlobeClient() {
   const constellationsDataSourceRef = useRef<CesiumNS.CustomDataSource | null>(null);
   const radarDataSourceRef = useRef<CesiumNS.CustomDataSource | null>(null);
   const constellationOverlayRef = useRef<CesiumNS.CustomDataSource | null>(null);
-  const orbitTrailRef = useRef<CesiumNS.CustomDataSource | null>(null);
   const multiSatRef = useRef<CesiumNS.CustomDataSource | null>(null);
   const locationPinRef = useRef<CesiumNS.Entity | null>(null);
 
@@ -452,22 +450,26 @@ export function GlobeClient() {
       cesiumRef.current = Cesium;
       viewerRef.current = viewer;
 
-      issDataSourceRef.current = setupISSOrbit(viewer, Cesium, showOrbitTrail);
+      issDataSourceRef.current = setupISSOrbit(viewer, Cesium, false);
       issDataSourceRef.current.show = showISS;
 
       constellationsDataSourceRef.current = setupConstellations(viewer, Cesium);
       constellationsDataSourceRef.current.show = showConstellations;
 
       constellationOverlayRef.current = setupConstellationOverlay(viewer, Cesium, showConstellationOverlay);
-      orbitTrailRef.current = setupOrbitalTrail(viewer, Cesium, showOrbitTrail);
+
+      // Initialize radar satellites if showRadar is true
+      if (showRadar) {
+        radarDataSourceRef.current = setupRadarSatellites(viewer, Cesium);
+      }
 
       setIsLoading(false);
 
       // Async: draw multi-satellite TLE orbits (non-blocking)
-      setupMultiSatelliteOrbits(viewer, Cesium, showOrbitTrail)
+      setupMultiSatelliteOrbits(viewer, Cesium, false)
         .then((ds) => {
           multiSatRef.current = ds;
-          ds.show = showOrbitTrail;
+          ds.show = false;
         })
         .catch((err) => console.warn("[MultiSat] orbit setup failed:", err));
       } catch (err) {
@@ -492,7 +494,6 @@ export function GlobeClient() {
         if (issDataSourceRef.current) viewer.dataSources.remove(issDataSourceRef.current, true);
         if (constellationsDataSourceRef.current) viewer.dataSources.remove(constellationsDataSourceRef.current, true);
         if (constellationOverlayRef.current) viewer.dataSources.remove(constellationOverlayRef.current, true);
-        if (orbitTrailRef.current) viewer.dataSources.remove(orbitTrailRef.current, true);
         if (radarDataSourceRef.current) viewer.dataSources.remove(radarDataSourceRef.current, true);
         viewer.destroy();
       }
@@ -519,26 +520,6 @@ export function GlobeClient() {
     }
   }, [showConstellationOverlay]);
 
-  useEffect(() => {
-    if (orbitTrailRef.current) {
-      orbitTrailRef.current.show = showOrbitTrail;
-    }
-    if (multiSatRef.current) {
-      multiSatRef.current.show = showOrbitTrail;
-    }
-    if (issDataSourceRef.current && cesiumRef.current) {
-      const Cesium = cesiumRef.current;
-      issDataSourceRef.current.entities.values.forEach((entity) => {
-        if (entity.id === "ISS_PATH") {
-          if (entity.path) {
-            entity.path.show = new Cesium.ConstantProperty(showOrbitTrail);
-          }
-        } else if (entity.polyline) {
-          entity.show = showOrbitTrail;
-        }
-      });
-    }
-  }, [showOrbitTrail]);
 
   // ── Sync Satellite Radar Mode ──
   useEffect(() => {
@@ -559,7 +540,7 @@ export function GlobeClient() {
         radarDataSourceRef.current.show = false;
       }
     }
-  }, [showRadar]);
+  }, [showRadar, isMissionMode]);
 
   // ── Sync Timeline Scrubber Clock Time ──
   useEffect(() => {
@@ -951,21 +932,6 @@ export function GlobeClient() {
               </label>
             </div>
 
-            {/* Orbit Trail Toggle */}
-            <div className="flex items-center justify-between border-t border-white/5 pt-3">
-              <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-slate-400 font-medium">
-                🛰 Orbit Trail
-              </span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={showOrbitTrail}
-                  onChange={(e) => setShowOrbitTrail(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-9 h-5 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-500"></div>
-              </label>
-            </div>
 
             {/* Satellite Radar Mode Toggle */}
             <div className="flex items-center justify-between border-t border-white/5 pt-3">
@@ -1159,7 +1125,6 @@ export function GlobeClient() {
           <div className="flex flex-col gap-3">
             {[
               { label: "✨ Constellation Lines", checked: showConstellationOverlay, set: setShowConstellationOverlay },
-              { label: "🛰 Orbit Trail",    checked: showOrbitTrail,          set: setShowOrbitTrail },
               { label: "Satellite Radar",   checked: showRadar,               set: (v: boolean) => { setShowRadar(v); setSelectedSatellite(null); } },
               { label: "Auto-Rotation",     checked: autoRotate,              set: setAutoRotate },
               { label: "ISS Tracking",      checked: showISS,                 set: setShowISS },

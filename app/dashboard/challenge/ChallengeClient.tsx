@@ -7,10 +7,6 @@ import dynamic from "next/dynamic";
 import { useLocationStore } from "../../lib/api-client";
 import { parseAnyCoordinates, validateCoordinates } from "../../lib/coordinates";
 
-const SkyDomeCanvas = dynamic(
-  () => import("../../sky/_components/SkyDomeCanvas").then((m) => ({ default: m.SkyDomeCanvas })),
-  { ssr: false }
-);
 
 function getSpecialLocationName(lat: number, lng: number): string | null {
   if (lat > 88) return "North Pole";
@@ -347,13 +343,6 @@ export default function ChallengeClient() {
               </div>
               <p className="text-slate-500 uppercase pt-2">Visible Planets</p>
               <p className="text-violet-300">{preview.twin.visiblePlanets.join(" · ")}</p>
-            </div>
-
-            <div className="rounded-xl border border-white/10 bg-black/40 p-3">
-              <p className="font-mono text-[9px] uppercase text-slate-500 mb-2">Mini Sky Dome Preview</p>
-              <div className="h-48 rounded-lg overflow-hidden">
-                <SkyDomeCanvas lat={preview.lat} lng={preview.lng} date={new Date()} />
-              </div>
             </div>
 
             <div className="flex gap-2">
