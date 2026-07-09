@@ -1,6 +1,4 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+const nextConfig = {
   reactStrictMode: true,
   turbopack: {}, // explicit empty config silences the webpack/Turbopack warning
   images: {
