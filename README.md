@@ -83,8 +83,8 @@ app/
 ### Installation
 
 ```bash
-git clone https://github.com/sanikachowdhary/mrunmayee.kokitkar-project-zenith.git
-cd mrunmayee.kokitkar-project-zenith
+git clone https://github.com/mrunmayeekokitkar/Zenith.git
+cd Zenith
 npm install
 cp .env.example .env.local
 # Fill in your keys in .env.local
@@ -105,17 +105,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## Screenshots
-
-| Page | Path |
-|---|---|
-| Home | `/public/screenshots/homepage_view.jpg` |
-| Dashboard | `/public/screenshots/dashboard_view.jpg` |
-| Globe | `/public/screenshots/globe_view.jpg` |
-| Sky Time Machine | `/public/screenshots/sky_view.jpg` |
-
----
-
 ## App Routes
 
 | Route | Description |
@@ -131,6 +120,5 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## Author
 
 **Mrunmayee Kokitkar**
-**Sanika Chowdhary**
 
 *"Look up. The sky is not the limit — it's the beginning."*
