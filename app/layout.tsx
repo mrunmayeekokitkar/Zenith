@@ -3,7 +3,6 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "./components/NavBar";
 import { NavigationProgress } from "./components/NavigationProgress";
-import CosmicAIChat from "./components/CosmicAIChat";
 import { MotionConfig } from "framer-motion";
 
 const inter = Inter({
@@ -66,7 +65,6 @@ export default function RootLayout({
         <MotionConfig transition={{ duration: 0.3, ease: "easeInOut" }}>
           {children}
         </MotionConfig>
-        <CosmicAIChat />
       </body>
     </html>
   );

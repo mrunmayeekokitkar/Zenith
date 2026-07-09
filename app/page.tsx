@@ -361,6 +361,13 @@ export default function Page() {
   });
   const [issPosition, setIssPosition] = useState<{ lat: number; lon: number } | null>(null);
   const [lastIssUpdate, setLastIssUpdate] = useState<Date | null>(null);
+  const [currentDate, setCurrentDate] = useState('');
+
+  useEffect(() => {
+    const now = new Date();
+    const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+    setCurrentDate(now.toLocaleDateString('en-GB', options));
+  }, []);
 
   useEffect(() => {
     async function fetchLiveStats() {
@@ -442,7 +449,7 @@ export default function Page() {
           >
             <span className="h-1.5 w-1.5 rounded-full bg-sky-400 animate-pulse" />
             <span className="font-mono text-[10px] uppercase tracking-[0.25em]" style={{ color: "var(--accent)" }}>
-              26 Jun 2026 · Celestial Intelligence Platform
+              {currentDate} · Celestial Intelligence Platform
             </span>
           </motion.div>
 

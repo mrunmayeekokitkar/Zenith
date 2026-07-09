@@ -170,6 +170,19 @@ export function setupISSOrbit(
     });
   }
 
+  // Keep all orbit polylines hidden unless trail mode is enabled
+  ds.entities.values.forEach((entity) => {
+    if (entity.polyline) {
+      entity.show = showPathTrail;
+    }
+  });
+
+  // Ensure the ISS entity's path is also hidden initially
+  const issEntity = ds.entities.getById("ISS_PATH");
+  if (issEntity && issEntity.path) {
+    (issEntity.path as CesiumNS.PathGraphics).show = new Cesium.ConstantProperty(showPathTrail);
+  }
+
   viewer.dataSources.add(ds);
   // Ensure time is progressing
   viewer.clock.shouldAnimate = true;
@@ -486,9 +499,11 @@ async function propagateOrbitPoints(
 
 export async function setupMultiSatelliteOrbits(
   viewer: CesiumNS.Viewer,
-  Cesium: typeof CesiumNS
+  Cesium: typeof CesiumNS,
+  visible = false
 ): Promise<CesiumNS.CustomDataSource> {
   const ds = new Cesium.CustomDataSource("MULTI_SAT_ORBITS");
+  ds.show = visible;
   viewer.dataSources.add(ds);
 
   await Promise.all(

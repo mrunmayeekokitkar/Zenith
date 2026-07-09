@@ -10,6 +10,7 @@ import { LocationSearch } from "../components/LocationSearch";
 import { hydrateLocationStore } from "../lib/api-client";
 import { fetchISSPassPrediction } from "../dashboard/_components/lib/real-api";
 import dynamic from "next/dynamic";
+import CosmicAIChat from "../components/CosmicAIChat";
 
 const LeafletMapFallback = dynamic(
   () => import("./_components/LeafletMapFallback"),
@@ -75,13 +76,8 @@ export function GlobeClient() {
   const [showConstellationOverlay, setShowConstellationOverlay] = useState(false);
 
   // New features state
-  const [showRadar, setShowRadar] = useState(false);
+  const [showRadar, setShowRadar] = useState(true);
   const [timelineOffset, setTimelineOffset] = useState(0); // In hours (-24 to +24)
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatInput, setChatInput] = useState("");
-  const [chatMessages, setChatMessages] = useState<{ sender: "user" | "ai"; text: string }[]>([
-    { sender: "ai", text: "Welcome Observer. Lock onto a coordinate or click Stargazing targets to begin telemetry report." }
-  ]);
 
   // Mobile controls drawer
   const [mobileControlsOpen, setMobileControlsOpen] = useState(false);
@@ -260,50 +256,6 @@ export function GlobeClient() {
       abortCtrl.abort();
     };
   }, [selected]);
-
-  // AI Chat Assistant message response handler
-  const handleSendChatMessage = (text: string) => {
-    if (!text.trim()) return;
-    
-    const userMsg = { sender: "user" as const, text };
-    setChatMessages(prev => [...prev, userMsg]);
-    setChatInput("");
-
-    setTimeout(() => {
-      let aiText = "Analyzing telemetry context for your query. Select a location on the globe to feed geographic intelligence data.";
-      const query = text.toLowerCase();
-      
-      if (selectedRef.current) {
-        const latStr = selectedRef.current.latitude.toFixed(4);
-        const lngStr = selectedRef.current.longitude.toFixed(4);
-        const details = selectedDetails;
-        
-        if (query.includes("iss") || query.includes("space station")) {
-          aiText = `From coordinates ${latStr}°, ${lngStr}°, the ISS is ${details?.issPrediction.includes("YES") ? "projected to be visible soon" : "not directly visible at this time"}. Details: ${details?.issPrediction}`;
-        } else if (query.includes("planet") || query.includes("visible")) {
-          aiText = `Tonight at coordinates ${latStr}°, ${lngStr}°, the atmospheric clarity is rated ${details?.stargazingQuality}. Jupiter is visible near zenith post-sunset; Venus is visible low on the western horizon.`;
-        } else if (query.includes("stargazing") || query.includes("good") || query.includes("pollution")) {
-          aiText = `Stargazing quality is rated ${details?.stargazingQuality} (Bortle ${details?.lightPollutionScore}/9). ${details?.spaceRelevance}`;
-        } else if (query.includes("satellite") || query.includes("overhead")) {
-          aiText = `Overhead satellite density at ${latStr}°, ${lngStr}° is ${details?.satDensity}. Enable Satellite Radar Mode to view communication and weather satellites orbiting this coordinate region.`;
-        } else {
-          aiText = `Analyzing locked coordinates ${latStr}°, ${lngStr}°: sky visibility index is ${details?.stargazingQuality}. Elevation: ${Math.round(selectedRef.current.height)}m. Summary: ${details?.explanation}`;
-        }
-      } else {
-        if (query.includes("iss") || query.includes("space station")) {
-          aiText = "The ISS orbits at 418km altitude. Click anywhere on the globe to calculate local visibility passes.";
-        } else if (query.includes("planet") || query.includes("visible")) {
-          aiText = "Visible celestial bodies depend on your lat/lng coordinates. Pick a landmark or click the globe to inspect.";
-        } else if (query.includes("stargazing") || query.includes("good")) {
-          aiText = "Oceans, high peaks (like Everest), and remote canyons offer the best stargazing (Bortle 1-2). Select a preset landmark to check.";
-        } else {
-          aiText = "Hello! I am your Cosmic AI Assistant. Lock onto a coordinate or select a landmark preset, and I will analyze custom sky conditions.";
-        }
-      }
-
-      setChatMessages(prev => [...prev, { sender: "ai" as const, text: aiText }]);
-    }, 600); // 600ms response time
-  };
 
   // ── 1. Initialize Cesium Viewer
   useEffect(() => {
@@ -512,8 +464,11 @@ export function GlobeClient() {
       setIsLoading(false);
 
       // Async: draw multi-satellite TLE orbits (non-blocking)
-      setupMultiSatelliteOrbits(viewer, Cesium)
-        .then((ds) => { multiSatRef.current = ds; })
+      setupMultiSatelliteOrbits(viewer, Cesium, showOrbitTrail)
+        .then((ds) => {
+          multiSatRef.current = ds;
+          ds.show = showOrbitTrail;
+        })
         .catch((err) => console.warn("[MultiSat] orbit setup failed:", err));
       } catch (err) {
         console.error("Cesium init failed:", err);
@@ -1172,99 +1127,6 @@ export function GlobeClient() {
 
 
 
-      {/* ── Bottom Right: Cosmic AI Assistant Floating bubble & panel ── */}
-      <div className="absolute bottom-24 right-6 z-30 pointer-events-auto flex flex-col items-end gap-3 w-80 md:bottom-6 md:right-6">
-        {chatOpen && (
-          <div className="relative overflow-hidden rounded-2xl border border-sky-500/20 bg-slate-950/90 shadow-[0_12px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl flex flex-col h-96 w-full animate-[fadeUp_0.25s_ease-out]">
-            <div className="p-3.5 border-b border-white/5 flex items-center justify-between bg-sky-950/20">
-              <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-sky-400 animate-pulse" />
-                <span className="font-mono text-[10px] uppercase tracking-widest text-slate-200 font-bold">Cosmic Intelligence</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setChatOpen(false)}
-                className="text-slate-400 hover:text-slate-100 transition-colors cursor-pointer"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </div>
-
-            {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3.5">
-              {chatMessages.map((m, idx) => (
-                <div key={idx} className={`flex flex-col ${m.sender === "user" ? "items-end" : "items-start"}`}>
-                  <span className="font-mono text-[8px] text-slate-500 mb-0.5 uppercase tracking-wider">
-                    {m.sender === "user" ? "Observer" : "Cosmic AI"}
-                  </span>
-                  <div className={`p-2.5 rounded-xl text-[11px] leading-relaxed max-w-[85%] ${
-                    m.sender === "user" 
-                      ? "bg-sky-500/10 text-sky-200 border border-sky-500/20" 
-                      : "bg-white/[0.02] text-slate-300 border border-white/5"
-                  }`}>
-                    {m.text}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Quick Prompts */}
-            <div className="p-2 border-t border-white/5 bg-black/10 flex gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-none shrink-0 font-mono text-[10px]">
-              {[
-                "When can I see ISS?",
-                "Is stargazing good tonight?",
-                "What satellites are overhead?"
-              ].map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => handleSendChatMessage(p)}
-                  className="rounded-full border border-white/5 bg-white/[0.04] px-2.5 py-1 font-sans text-[9px] text-slate-300 hover:bg-white/[0.08] hover:text-slate-100 transition-all cursor-pointer"
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-
-            {/* Chat Input */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSendChatMessage(chatInput);
-              }}
-              className="p-3 border-t border-white/5 bg-slate-950 flex gap-2"
-            >
-              <input
-                type="text"
-                placeholder="Ask Cosmic AI..."
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                className="flex-1 rounded-xl border border-white/10 bg-black/50 px-3 py-2 font-mono text-[10px] text-slate-200 outline-none focus:border-sky-400/40 transition-colors"
-              />
-              <button
-                type="submit"
-                className="rounded-xl bg-sky-500 px-3.5 text-[10px] font-bold text-white hover:bg-sky-400 transition-colors cursor-pointer"
-              >
-                Send
-              </button>
-            </form>
-          </div>
-        )}
-
-        {/* Floating Bubble Icon */}
-        <button
-          type="button"
-          onClick={() => setChatOpen(!chatOpen)}
-          className="h-12 w-12 rounded-full bg-sky-500 text-white flex items-center justify-center shadow-lg hover:bg-sky-400 hover:scale-105 transition-all cursor-pointer animate-bounce"
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-      </div>
-
       {/* ── Mobile: Controls Toggle Button (FAB at bottom-right) ── */}
       <button
         type="button"
@@ -1324,6 +1186,9 @@ export function GlobeClient() {
           </div>
         </div>
       </div>
+
+      {/* Zenith AI Chat - only on Globe page */}
+      <CosmicAIChat />
     </main>
   );
 }

@@ -51,6 +51,7 @@ All external API calls run through **server-side proxy routes** in `app/api/` �
 - **Challenge Mode** — Enter any coordinate for a full cosmic intelligence report with ISS distance, Bortle scale, and sky preview
 - **Coordinate Input** — All location searches accept `lat,lon` decimal and DMS formats
 - **Share Links** — Deep links for Dashboard and Sky pages encode location, city, and time state
+- **Zenith AI** — AI-powered cosmic intelligence assistant (available on Globe page) for answering questions about celestial events, satellites, and stargazing
 
 ---
 
@@ -99,6 +100,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | Variable | Required | Description |
 |---|---|---|
 | `NEXT_PUBLIC_CESIUM_ION_TOKEN` | Yes (for globe) | Cesium Ion access token from [ion.cesium.com](https://ion.cesium.com/) |
+| `ANTHROPIC_API_KEY` | Optional (for AI chat) | Anthropic API key for Zenith AI chat functionality |
 | `NASA_API_KEY` | Optional | NASA API key for APOD on the home page |
 | `GOOGLE_GEOCODING_API_KEY` | Optional | Fallback geocoding when Nominatim is unavailable |
 | `OPEN_METEO_URL` | Optional | Default: `https://api.open-meteo.com/v1/forecast` |
